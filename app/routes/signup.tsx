@@ -1,10 +1,9 @@
 import { Form, useActionData, redirect } from "remix";
 import { supabaseClient } from "~/supabase";
-import { commitSession, getSession } from "~/session.server";
 
 type ActionRequest = {
-  request: Request;
-};
+  request: Request
+}
 
 export const action = async ({ request }: ActionRequest) => {
   const form = await request.formData();
@@ -14,30 +13,24 @@ export const action = async ({ request }: ActionRequest) => {
   await supabaseClient.auth.signOut();
 
   const {
-    session: gotrueSession,
+    session: supabaseSession,
     user,
     error: signUpError,
   } = await supabaseClient.auth.signUp({
     email,
     password,
   });
+  console.log(userName) //miniflareにて確認
+  
   if (!signUpError && user) {
     const { error: profileError } = await supabaseClient
       .from("profiles")
-      .insert({ user_name: userName, id: user.id }, {returning : 'minimal'});
+      .insert({ user_name: userName, user_id: user.id }, {returning : 'minimal'});
 
-    if (profileError) return { error: profileError };    
-
-    const session = await getSession(request.headers.get("Cookie"));
-    console.log(gotrueSession?.access_token) //miniflareにてJWTを確認
-    session.set("access_token", gotrueSession?.access_token);
-    return redirect("/mail", {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    });
+    if (profileError) return { error: profileError };
+    return redirect("/mail")
   }
-  return { user, signUpError };
+   return { user, signUpError };
 };
 
 export default function Signup() {
