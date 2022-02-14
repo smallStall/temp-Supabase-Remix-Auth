@@ -25,7 +25,7 @@ export const action = async ({ request }: ActionRequest) => {
   if (!signUpError && user) {
     const { error: profileError } = await supabaseClient
       .from("profiles")
-      .insert({ user_name: userName, user_id: user.id }, {returning : 'minimal'});
+      .insert({ user_name: userName, id: user.id }, {returning : 'minimal'});
 
     if (profileError) return { error: profileError };
     return redirect("/mail")
