@@ -38,6 +38,7 @@ export default function Index() {
       <div>
         <p>------------------------------------------</p>
         <Outlet />
+        <Scripts />
         <p>------------------------------------------</p>
       </div>
     </Document>
